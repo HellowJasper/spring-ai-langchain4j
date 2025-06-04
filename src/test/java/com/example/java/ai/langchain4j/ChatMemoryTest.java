@@ -2,6 +2,7 @@ package com.example.java.ai.langchain4j;
 
 import com.example.java.ai.langchain4j.assistant.Assistant;
 import com.example.java.ai.langchain4j.assistant.MemoryChatAssistant;
+import com.example.java.ai.langchain4j.assistant.SeparateChatAssistant;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -56,16 +57,19 @@ public class ChatMemoryTest {
  * 初级智能体
  */
     @Autowired
-    private MemoryChatAssistant memoryChatAssistant;
+    private SeparateChatAssistant separateChatAssistant;
 
     @Test
-    public void testChatMemory3() {
+    public void testChatMemory5() {
 
         //调用service的接口
-        String answer1 = assistant.chat("我是张三");
+        String answer1 = separateChatAssistant.chat(1,"我是张三");
         System.out.println(answer1);
-        String answer2 = assistant.chat("我是谁");
+        String answer2 = separateChatAssistant.chat(1,"我是谁");
         System.out.println(answer2);
+        String answer3 = separateChatAssistant.chat(2,"我是谁");
+        System.out.println(answer3);
 
     }
+
 }
