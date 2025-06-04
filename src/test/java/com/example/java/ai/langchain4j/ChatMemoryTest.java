@@ -53,6 +53,7 @@ public class ChatMemoryTest {
 
     @Test
     public void testChatMemory3() {
+
         //创建chatMemory
         MessageWindowChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(10);
         //创建AIService
