@@ -1,6 +1,8 @@
 package com.example.java.ai.langchain4j.assistant;
 
 import dev.langchain4j.service.spring.AiService;
+import dev.langchain4j.service.spring.AiServiceWiringMode;
+import org.apache.commons.lang3.ClassUtils;
 
 import static dev.langchain4j.service.spring.AiServiceWiringMode.EXPLICIT;
 
@@ -8,7 +10,7 @@ import static dev.langchain4j.service.spring.AiServiceWiringMode.EXPLICIT;
         chatModel = "qwenChatModel",
         chatMemory = "chatMemory"
 )
-public interface Assistant {
+public interface MemoryChatAssistant {
 
-    String chat(String userMessage);
+    String chat(String message);
 }

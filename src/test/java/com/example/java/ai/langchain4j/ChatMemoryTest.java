@@ -1,6 +1,7 @@
 package com.example.java.ai.langchain4j;
 
 import com.example.java.ai.langchain4j.assistant.Assistant;
+import com.example.java.ai.langchain4j.assistant.MemoryChatAssistant;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -50,22 +51,17 @@ public class ChatMemoryTest {
         //输出大语言模型的回复
         System.out.println(aiMessage2.text());
     }
-
+/**
+ * 使用MemoryChatAssistant
+ * 初级智能体
+ */
+    @Autowired
+    private MemoryChatAssistant memoryChatAssistant;
     @Test
     public void testChatMemory3() {
 
-        //创建chatMemory
-        MessageWindowChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(10);
-        //创建AIService
-        Assistant assistant = AiServices
-                .builder(Assistant.class)
-                .chatLanguageModel(qwenChatModel)
-                .chatMemory(chatMemory)
-                .build();
-
-
         //调用service的接口
-        String answer1 = assistant.chat("我是环环");
+        String answer1 = assistant.chat("我是张三");
         System.out.println(answer1);
         String answer2 = assistant.chat("我是谁");
         System.out.println(answer2);
