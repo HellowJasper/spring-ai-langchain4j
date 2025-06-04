@@ -69,5 +69,6 @@ public class ChatMemoryTest {
         System.out.println(answer1);
         String answer2 = assistant.chat("我是谁");
         System.out.println(answer2);
+
     }
 }
