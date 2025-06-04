@@ -57,6 +57,7 @@ public class ChatMemoryTest {
  */
     @Autowired
     private MemoryChatAssistant memoryChatAssistant;
+
     @Test
     public void testChatMemory3() {
 
