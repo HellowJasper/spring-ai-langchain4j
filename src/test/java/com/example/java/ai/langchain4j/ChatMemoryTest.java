@@ -62,7 +62,6 @@ public class ChatMemoryTest {
                 .chatLanguageModel(qwenChatModel)
                 .chatMemory(chatMemory)
                 .build();
-
         //调用service的接口
         String answer1 = assistant.chat("我是环环");
         System.out.println(answer1);
