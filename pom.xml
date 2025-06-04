@@ -41,8 +41,9 @@
 <!--        引入langchain4j-->
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-open-ai</artifactId>
+            <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
         </dependency>
+
     </dependencies>
 
     <dependencyManagement>
