@@ -25,4 +25,12 @@ public void testSystemMessage() {
         System.out.println(answer);
     }
 
+    @Test
+    public void testV() {
+        String answer1 = memoryChatAssistant.chat2(1, "我是老贾");
+        System.out.println(answer1);
+        String answer2 = memoryChatAssistant.chat2(1, "我是谁");
+        System.out.println(answer2);
+    }
+
 }
