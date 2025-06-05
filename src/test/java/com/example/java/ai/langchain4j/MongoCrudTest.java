@@ -48,7 +48,6 @@ public class MongoCrudTest {
         Query query = new Query(criteria);
         Update update = new Update();
         update.set("content", "新的聊天记录");
-
         mongoTemplate.upsert(query, update, ChatMessages.class);
     }
     @Test

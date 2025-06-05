@@ -62,6 +62,8 @@ public class ChatMemoryTest {
     @Test
     public void testChatMemory5() {
 
+
+
         //调用service的接口
         String answer1 = separateChatAssistant.chat(1,"我是张三");
         System.out.println(answer1);
