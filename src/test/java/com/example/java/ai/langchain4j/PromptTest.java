@@ -33,4 +33,10 @@ public void testSystemMessage() {
         System.out.println(answer2);
     }
 
+    @Test
+    public void testUserInfo() {
+        String answer = separateChatAssistant.chat3(1, "我是谁，我多大了", "老贾", 18);
+        System.out.println(answer);
+    }
+
 }
