@@ -1,6 +1,7 @@
 package com.example.java.ai.langchain4j.assistant;
 
 import dev.langchain4j.service.MemoryId;
+import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.spring.AiService;
 
@@ -20,5 +21,7 @@ public interface SeparateChatAssistant {
      * @param userMessage 用户消息
      * @return
      */
+    //系统消息提示词
+    @SystemMessage(fromResource = "my-prompt-template.txt")
     String chat(@MemoryId int memoryId, @UserMessage String userMessage);
 }
