@@ -94,6 +94,11 @@
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-easy-rag</artifactId>
         </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-pinecone</artifactId>
+            <version>1.0.1-beta6</version>
+        </dependency>
 
     </dependencies>
 
@@ -107,6 +112,9 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+
+
 
                 <!--引入langchain4j依赖管理清单-->
                 <dependency>
