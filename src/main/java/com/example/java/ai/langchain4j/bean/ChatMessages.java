@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document("chat_messages")
-//尚硅⾕
 //创建测试类：
 public class ChatMessages {
 
