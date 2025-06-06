@@ -5,6 +5,7 @@ import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
 import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.onnx.HuggingFaceTokenizer;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
@@ -102,5 +103,16 @@ public class RAGTest {
                 .documentSplitter(documentSplitter)
                 .build()
                 .ingest(document);
+    }
+
+    @Test
+    public void testTokenCount() {
+        String text = "这是一个示例文本，用于测试 token 长度的计算。";
+        UserMessage userMessage = UserMessage.userMessage(text);
+         //计算 token 长度
+        //QwenTokenizer tokenizer = new QwenTokenizer(System.getenv("DASH_SCOPE_API_KEY"),"qwen-max");
+        HuggingFaceTokenizer tokenizer = new HuggingFaceTokenizer();
+        int count = tokenizer.estimateTokenCountInMessage(userMessage);
+        System.out.println("token长度：" + count);
     }
 }
