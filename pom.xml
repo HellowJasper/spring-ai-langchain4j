@@ -40,9 +40,16 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
         </dependency>
 
-<!--        引入langchain4j-->
+
+        <!--        引入langchain4j-->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
@@ -121,9 +128,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-
-
 
                 <!--引入langchain4j依赖管理清单-->
                 <dependency>

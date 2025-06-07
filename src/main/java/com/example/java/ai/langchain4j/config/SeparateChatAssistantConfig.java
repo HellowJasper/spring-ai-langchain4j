@@ -14,7 +14,7 @@ public class SeparateChatAssistantConfig {
     private MongoChatMemoryStore mongoChatMemoryStore;
 
     @Bean
-    ChatMemoryProvider chatMemoryProvider() {
+    public ChatMemoryProvider chatMemoryProvider() {
 
         return memoryId -> MessageWindowChatMemory
                 .builder()
