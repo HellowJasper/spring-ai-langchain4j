@@ -577,4 +577,261 @@ public class SeparateChatAssistantConfig {
     }
 ~~~
 
+# 持久化聊天记忆Persistence
+本项目使用MongoDB来作为存储介质
 
+NoSql数据库 文档型数据库，数据以 JSON - like 的文档形式存储，具有高度的灵活性和可扩展性。它
+不需要预先定义严格的表结构，适合存储半结构化或非结构化的数据。
+
+适用于消息信息多样化，如有文本消息，图片，语音等多媒体数据
+
+## 9.1 安装MongoDB
+服务器： mongodb-windows-x86_64-8.0.6-signed.msi https://www.mongodb.com/try/download/co
+mmunity
+
+命令行客户端 ： mongosh-2.5.0-win32-x64.zip https://www.mongodb.com/try/download/shell
+
+图形客户端： mongodb-compass-1.39.3-win32-x64.exe https://www.mongodb.com/try/download/c
+ompass
+
+## 9.2 MongoBB的使用
+启动 MongoDB Shell：
+
+在命令行中输入 mongosh 命令，启动 MongoDB Shell，如果 MongoDB 服务器运行在本地默认端口
+（27017），则可以直接连接。
+
+连接到 MongoDB 服务器：
+
+如果 MongoDB 服务器运行在非默认端口或者远程服务器上，可以使用以下命令连接：
+
+其中 <hostname> 是 MongoDB 服务器的主机名或 IP 地址， <port> 是 MongoDB 服务器的端口号。
+
+执行基本操作：
+
+连接成功后，可以执行各种 MongoDB 数据库操作。例如：
+
+* 查看当前数据库： db
+* 显示数据库列表： show dbs
+* 切换到指定数据库： use <database_name>
+* 执行查询操作： db.<collection_name>.find()
+* 插入文档： db.<collection_name>.insertOne({ ... })
+* 更新文档： db.<collection_name>.updateOne({ ... })
+* 删除文档： db.<collection_name>.deleteOne({ ... })
+* 退出 MongoDB Shell： quit() 或者 exit
+
+
+## 9.3 引入MongoDB依赖
+~~~
+ <!-- Spring Boot Starter Data MongoDB -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+~~~
+连接配置
+~~~
+#MongoDB连接配置
+spring.data.mongodb.uri=mongodb://localhost:27017/chat_memory_db
+~~~
+
+## 9.4 CRUD测试
+我们需要创建一个实体类来进行余MangoDB中的文档进行映射
+~~~
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Document("chat_messages")
+//创建测试类：
+public class ChatMessages {
+
+    //唯一标识，映射到 MongoDB 文档的 _id 字段
+    @Id
+    private ObjectId id;
+    // private int messageId;
+    private String content; //存储当前聊天记录列表的json字符串
+}
+~~~
+
+创建对应的测试类
+~~~
+@SpringBootTest
+public class MongoCrudTest {
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    /**
+     * 插入文档
+     */
+//    @Test
+//    public void testInsert() {
+//        mongoTemplate.insert(new ChatMessages(1L, "聊天记录"));
+//    }
+
+    /**
+     * 插入文档
+     */
+    @Test
+    public void testInsert2() {
+        ChatMessages chatMessages = new ChatMessages();
+        chatMessages.setContent("聊天记录");
+        mongoTemplate.insert(chatMessages);
+
+    }
+    @Test
+    public void testFindByID(){
+        ChatMessages chatMessages = mongoTemplate.findById("68418e5d4ce2830674ec231a", ChatMessages.class);
+        System.out.println(chatMessages);
+    }
+
+    @Test
+    public void testUpdate(){
+        Criteria  criteria = Criteria.where("_Id").is("100");
+        Query query = new Query(criteria);
+        Update update = new Update();
+        update.set("content", "新的聊天记录");
+        mongoTemplate.upsert(query, update, ChatMessages.class);
+    }
+    @Test
+    public void testDelete(){
+        Criteria  criteria = Criteria.where("_Id").is("100");
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, ChatMessages.class);
+    }
+}
+~~~
+# 持久化聊天
+
+## 10.1 优化实体类
+~~~
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Document("chat_messages")
+//创建测试类：
+public class ChatMessages {
+
+    //唯一标识，映射到 MongoDB 文档的 _id 字段
+    @Id
+    private ObjectId id;
+    private int messageId;
+    private String content; //存储当前聊天记录列表的json字符串
+}
+~~~
+## 10.2 创建持久化类
+~~~
+@Component
+public class MongoChatMemoryStore implements ChatMemoryStore {
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Override
+    public List<ChatMessage> getMessages(Object memoryId) {
+        Criteria criteria = Criteria.where("memoryId").is(memoryId);
+        Query query = new Query(criteria);
+
+        ChatMessages chatMessages = mongoTemplate.findOne(query, ChatMessages.class);
+        if(chatMessages == null)
+            return new LinkedList<>();
+        return ChatMessageDeserializer.messagesFromJson(chatMessages.getContent());
+    }
+    @Override
+    public void updateMessages(Object memoryId, List<ChatMessage> messages) {
+        Criteria criteria = Criteria.where("memoryId").is(memoryId);
+        Query query = new Query(criteria);
+        Update update = new Update();
+        update.set("content", ChatMessageSerializer.messagesToJson(messages));
+        //根据query条件能查询出文档，则修改文档；否则新增文档
+        mongoTemplate.upsert(query, update, ChatMessages.class);
+    }
+    @Override
+    public void deleteMessages(Object memoryId) {
+        Criteria criteria = Criteria.where("memoryId").is(memoryId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, ChatMessages.class);
+    }
+}
+~~~
+在SeparateChatAssistantConfig中，添加MongoChatMemoryStore对象的配置
+~~~
+@Configuration
+public class SeparateChatAssistantConfig {
+
+    @Autowired
+    private MongoChatMemoryStore mongoChatMemoryStore;
+
+    @Bean
+    public ChatMemoryProvider chatMemoryProvider() {
+
+        return memoryId -> MessageWindowChatMemory
+                .builder()
+                .id(memoryId)
+                .maxMessages(10)
+                .chatMemoryStore(mongoChatMemoryStore)
+                .build();
+    }
+}
+~~~
+
+## 10.3 测试
+正常测试，如果通过的话会显示在chat_memory_db.chat_messages中
+
+# 提示词Prompt
+个人理解为就是你对大模型的设定，比如将与你对话的大模型设定成二次元老婆之类
+~~~
+@SystemMessage("你是我二次元老婆，请回答我相关问题。")//系统消息提示词
+String chat(@MemoryId int memoryId, @UserMessage String userMessage);
+~~~
+运行逻辑：
+
+`SystemMessage`的内容在后台转换为`SystemMessage`对象 一并发给LLM(大语言模型) 且该内容只会发送一次
+
+如果要显示今天的日期，我们需要在提示词中添加当前日期的占位符`{{current_date}}`
+
+## 11.1 从资源文件中加载提示模板
+@SystemMessage 注解还可以从资源中加载提示模板
+
+示例
+
+~~~
+@SystemMessage(fromResource = "my-prompt-template.txt")
+String chat(@MemoryId int memoryId, @UserMessage String userMessage);
+~~~
+
+## 11.2 用户提示词模板使用
+
+`@UserMessage`：获取用户的输入
+
+~~~
+@UserMessage("你是我的好朋友，请用上海话回答问题，并且添加一些表情符号。 {{it}}") //{{it}}表示这里唯一的参数的占位符
+String chat(String message);
+~~~
+
+## 12.3 指定参数名称
+### 12.3.1 @V的使用
+`@V` 明确指定传递的参数名称
+~~~
+@UserMessage("你是我的好朋友，请用上海话回答问题，并且添加一些表情符号。{{message}}")
+String chat(@V("message") String userMessage);
+~~~
+
+### 12.3.2 多个参数的情况使用
+如果有两个或两个以上的参数，我们必须要用`@V` ，在 `SeparateChatAssistant` 中定义方法 chat2
+
+~~~
+@UserMessage("你是我的好朋友，请用粤语回答问题。{{message}}")
+String chat2(@MemoryId int memoryId, @V("message") String userMessage);
+~~~
+
+### 12.3.3@SystemMessage和@V的使用
+也可以将`@SystemMessage` 和 `@V` 结合使用
+在 SeparateChatAssistant 中添加方法chat3
+~~~
+@SystemMessage(fromResource = "my-prompt-template3.txt")
+String chat3(
+         @MemoryId int memoryId,
+         @UserMessage String userMessage,
+         @V("username") String username,
+         @V("age") int age
+);
+~~~
+# 硅谷小智的创建与实现
