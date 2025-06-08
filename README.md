@@ -517,8 +517,64 @@ public class MemoryChatAssistantConfig {
     }
 ~~~
 ## 8.3 隔离聊天记录
+为每个用户的新聊天或者不同的用户区分聊天回忆
 ### 8.3.1 创建记忆隔离对话智能体
 ~~~
-
+@AiService(
+        wiringMode = EXPLICIT,
+        chatModel = "qwenChatModel",
+        chatMemory = "chatMemory",
+        chatMemoryProvider = "chatMemoryProvider",
+        tools = "calculatorTools"
+)
+public interface SeparateChatAssistant {
+    /**
+     * 分离聊天记录
+     * @param memoryId 聊天id
+     * @param userMessage 用户消息
+     * @return
+     */
+   
+    String chat(@MemoryId int memoryId, @UserMessage String userMessage);
 ~~~
+
+### 8.3.2 配置ChatMemoryProvider
+~~~
+@Configuration
+public class SeparateChatAssistantConfig {
+
+    @Autowired
+    private MongoChatMemoryStore mongoChatMemoryStore;
+
+    @Bean
+    public ChatMemoryProvider chatMemoryProvider() {
+
+        return memoryId -> MessageWindowChatMemory
+                .builder()
+                .id(memoryId)
+                .maxMessages(10)
+                .chatMemoryStore(mongoChatMemoryStore)
+                .build();
+    }
+}
+~~~
+### 8.3.3 测试对话助手
+~~~
+ @Autowired
+    private SeparateChatAssistant separateChatAssistant;
+
+    @Test
+    public void testChatMemory5() {
+        
+        //调用service的接口
+        String answer1 = separateChatAssistant.chat(1,"我是张三");
+        System.out.println(answer1);
+        String answer2 = separateChatAssistant.chat(1,"我是谁");
+        System.out.println(answer2);
+        String answer3 = separateChatAssistant.chat(2,"我是谁");
+        System.out.println(answer3);
+
+    }
+~~~
+
 
